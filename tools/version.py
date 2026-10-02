@@ -323,7 +323,7 @@ class VersionTool(BaseTool):
             ]
             provider_names = ["Google Gemini", "OpenAI", "X.AI", "DIAL", "OpenRouter", "Custom/Local"]
 
-            for provider_type, provider_name in zip(provider_types, provider_names):
+            for provider_type, provider_name in zip(provider_types, provider_names, strict=False):
                 provider = ModelProviderRegistry.get_provider(provider_type)
                 status = "✅ Configured" if provider is not None else "❌ Not configured"
                 provider_status.append(f"- **{provider_name}**: {status}")

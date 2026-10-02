@@ -33,7 +33,7 @@ class GeminiModelProvider(RegistryBackedProviderMixin, ModelProvider):
     MODEL_CAPABILITIES: ClassVar[dict[str, ModelCapabilities]] = {}
 
     # Thinking mode configurations - percentages of model's max_thinking_tokens
-    # These percentages work across all models that support thinking
+    # Used by models that configure thinking with token budgets.
     THINKING_BUDGETS = {
         "minimal": 0.005,  # 0.5% of max - minimal thinking for fast responses
         "low": 0.08,  # 8% of max - light reasoning tasks
@@ -194,12 +194,19 @@ class GeminiModelProvider(RegistryBackedProviderMixin, ModelProvider):
 
         # Add thinking configuration for models that support it
         if capabilities.supports_extended_thinking and effective_thinking_mode in self.THINKING_BUDGETS:
-            # Get model's max thinking tokens and calculate actual budget
-            model_config = capability_map.get(resolved_model_name)
-            if model_config and model_config.max_thinking_tokens > 0:
-                max_thinking_tokens = model_config.max_thinking_tokens
-                actual_thinking_budget = int(max_thinking_tokens * self.THINKING_BUDGETS[effective_thinking_mode])
-                generation_config.thinking_config = types.ThinkingConfig(thinking_budget=actual_thinking_budget)
+            if resolved_model_name == "gemini-3.8-flash":
+                # Flash 3.8 accepts low/medium/high levels; minimal is unsupported.
+                thinking_levels = {"minimal": "LOW", "low": "LOW", "medium": "MEDIUM", "high": "HIGH", "max": "HIGH"}
+                generation_config.thinking_config = types.ThinkingConfig(
+                    thinking_level=thinking_levels[effective_thinking_mode]
+                )
+            else:
+                # Get model's max thinking tokens and calculate actual budget
+                model_config = capability_map.get(resolved_model_name)
+                if model_config and model_config.max_thinking_tokens > 0:
+                    max_thinking_tokens = model_config.max_thinking_tokens
+                    actual_thinking_budget = int(max_thinking_tokens * self.THINKING_BUDGETS[effective_thinking_mode])
+                    generation_config.thinking_config = types.ThinkingConfig(thinking_budget=actual_thinking_budget)
 
         # Retry logic with progressive delays
         max_retries = 4  # Total of 4 attempts
@@ -468,6 +475,8 @@ class GeminiModelProvider(RegistryBackedProviderMixin, ModelProvider):
         if not allowed_models:
             return None
 
+        # Compare canonical versions so aliases cannot change preference ordering.
+        allowed_models = [self._resolve_model_name(model) for model in allowed_models]
         capability_map = self.get_all_model_capabilities()
 
         # Helper to find best model from candidates

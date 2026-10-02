@@ -56,7 +56,8 @@ The curated defaults in `conf/openrouter_models.json` include popular entries su
 | `sonnet`, `sonnet4.5` | `anthropic/claude-sonnet-4.5` | Balanced Claude with high context window |
 | `haiku` | `anthropic/claude-3.5-haiku` | Fast Claude option with vision |
 | `pro`, `gemini` | `google/gemini-2.5-pro` | Frontier Gemini with extended thinking |
-| `flash` | `google/gemini-2.5-flash` | Ultra-fast Gemini with vision |
+| `flash`, `gemini-flash`, `flash3.8`, `gemini3.8` | `google/gemini-3.8-flash` | Gemini 3.8 Flash with vision and reasoning |
+| `flash2.5`, `gemini-flash-2.5` | `google/gemini-2.5-flash` | Previous Flash generation with vision |
 | `mistral` | `mistralai/mistral-large-2411` | Frontier Mistral (text only) |
 | `llama3` | `meta-llama/llama-3-70b` | Large open-weight text model |
 | `deepseek-r1` | `deepseek/deepseek-r1-0528` | DeepSeek reasoning model |
@@ -66,6 +67,13 @@ The curated defaults in `conf/openrouter_models.json` include popular entries su
 | `codex-mini`, `gpt5.1-codex-mini` | `openai/gpt-5.1-codex-mini` | Cost-efficient Codex variant with streaming |
 
 Consult the JSON file for the full list, aliases, and capability flags. Add new entries as OpenRouter releases additional models.
+
+Gemini 3.8 Flash is also available through the native Google provider as `gemini-3.8-flash`, with the same aliases.
+Both providers advertise a 1,048,576-token context window and 65,536 maximum output tokens.
+The native provider uses thinking levels: PAL's `minimal` and `low` modes map to `low`, `medium` maps to `medium`,
+and `high` and `max` map to `high`. This requires `google-genai>=1.56.0`.
+See the [Google model documentation](https://ai.google.dev/gemini-api/docs/models/gemini-3.8-flash)
+and [OpenRouter model page](https://openrouter.ai/google/gemini-3.8-flash) for specifications.
 
 ### Custom/Local Models
 

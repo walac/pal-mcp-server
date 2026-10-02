@@ -3,7 +3,8 @@
 import logging
 import time
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, Any, Callable, Optional
+from collections.abc import Callable
+from typing import TYPE_CHECKING, Any, Optional
 
 if TYPE_CHECKING:
     from tools.models import ToolModelCategory
